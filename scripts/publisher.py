@@ -62,12 +62,12 @@ def publisher():
 		if do_log_raw_data:
 			rospy.loginfo(raw_data)
 			pub_raw.publish(raw_data)
+			if data["type"] != "velocity":
+				continue
 		else:
 			if data["type"] != "velocity":
 				continue
-			else:
-				pub_raw.publish(raw_data)
-		
+			pub_raw.publish(raw_data)
 		
 		# pub_raw.publish(raw_data) # jingyu edit: the previous logic seems wrong
 		# 						  # putting pub_raw before the if statement seems to be doing logging raw data
