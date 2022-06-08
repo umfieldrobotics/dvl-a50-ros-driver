@@ -58,12 +58,22 @@ def publisher():
 	rate = rospy.Rate(10) # 10hz
 	while not rospy.is_shutdown():
 		raw_data = getData()
+		data = json.loads(raw_data)
 		if do_log_raw_data:
 			rospy.loginfo(raw_data)
-		data = json.loads(raw_data)
-		if data["type"] != "velocity":
-			continue
-		pub_raw.publish(raw_data)
+			pub_raw.publish(raw_data)
+		else:
+			if data["type"] != "velocity":
+				continue
+			else:
+				pub_raw.publish(raw_data)
+		
+		
+		# pub_raw.publish(raw_data) # jingyu edit: the previous logic seems wrong
+		# 						  # putting pub_raw before the if statement seems to be doing logging raw data
+
+		# if data["type"] != "velocity":
+		# 	continue
 
 		theDVL.header.stamp = rospy.Time.now()
 		theDVL.header.frame_id = "dvl_link"
