@@ -69,6 +69,8 @@ def publisher():
         'dvl/twist', TwistStamped, queue_size=10)
     pose_pub = rospy.Publisher(
         'dvl/vel_coverage', PoseWithCovarianceStamped, queue_size=10)
+    pub_quat = rospy.Publisher(
+        'dvl/local_position', PoseWithCovarianceStamped, queue_size=10)
 
     rate = rospy.Rate(10)  # 10hz
     while not rospy.is_shutdown():
@@ -186,26 +188,30 @@ def publisher():
             pitch = data["pitch"]
             yaw = data["yaw"]
             std = data["std"]
-
-            imu = Imu()
-            imu.header.stamp = rospy.Time.now()
-            imu.header.frame_id = "dvl_link"
-
             rot = R.from_euler('xyz', [roll, pitch, yaw])
             qx = rot.as_quat()[0]
             qy = rot.as_quat()[1]
             qz = rot.as_quat()[2]
             qw = rot.as_quat()[3]
-            imu.orientation.x = qx
-            imu.orientation.y = qy
-            imu.orientation.z = qz
-            imu.orientation.w = qw
-            imu.orientation_covariance = std ** 2 * \
-                np.eye(3).reshape(-1, 1).tolist()
+            
+            x = data['x']
+            y = data['y']
+            z = data['z']
 
-            pub_quat = rospy.Publisher(
-                'dvl/local_position', Imu, queue_size=10)
-            pub_quat.publish(imu)
+            dvl_position = PoseWithCovarianceStamped()
+            dvl_position.header.stamp = rospy.Time.now()
+            dvl_position.header.frame_id = "dvl_link"
+            dvl_position.pose.pose.position.x = x
+            dvl_position.pose.pose.position.y = y
+            dvl_position.pose.pose.position.z = z
+            dvl_position.pose.pose.orientation.x = qx
+            dvl_position.pose.pose.orientation.y = qy
+            dvl_position.pose.pose.orientation.z = qz
+            dvl_position.pose.pose.orientation.w = qw
+            cov = std ** 2 * np.eye(6)
+            dvl_position.pose.covariance = cov.reshape(-1,)
+
+            pub_quat.publish(dvl_position)
 
         rate.sleep()
 
