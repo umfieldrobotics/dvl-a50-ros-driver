@@ -98,7 +98,7 @@ def publisher():
 
         raw_data = getData()
         if do_log_raw_data:
-            rospy.loginfo(raw_data)
+            # rospy.loginfo(raw_data)
             pub_raw.publish(raw_data)
 
         data = json.loads(raw_data)
@@ -159,7 +159,7 @@ def publisher():
             twist_cov.twist.twist.linear.x = data["vx"]
             twist_cov.twist.twist.linear.y = data["vy"]
             twist_cov.twist.twist.linear.z = data["vz"]
-            tmp_cov = np.eye(6).reshape(-1, 1).tolist()
+            tmp_cov = np.eye(6).reshape(-1)
             tmp_cov[:9] = cov
             twist_cov.twist.covariance = tmp_cov
             twist_cov_pub.publish(twist_cov)
