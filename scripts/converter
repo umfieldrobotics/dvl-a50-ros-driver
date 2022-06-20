@@ -1,21 +1,35 @@
 #!/usr/bin/env python
 import rospy
 import numpy as np
-from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import PoseWithCovarianceStamped, TransformStamped
+import tf2_ros as tf
 
 
 def convert(data):
-    pub = rospy.Publisher('/dvl/converted/pose', PoseWithCovarianceStamped, queue_size=10)
-    msg = PoseWithCovarianceStamped()
-    msg = data
-    msg.header.frame_id = "world"
+    pub = rospy.Publisher('/dvl/converted/pose',
+                          PoseWithCovarianceStamped, queue_size=10)
 
-    pub.publish(msg)
+    br = tf.TransformBroadcaster()
+    tf_msg = TransformStamped()
+    tf_msg.header.stamp = rospy.Time.now()
+    tf_msg.header.frame_id = 'dvl_link'
+    tf_msg.child_frame_id = 'world'
+    tf_msg.transform.translation.x = data.pose.pose.position.x + 2507.098615
+    tf_msg.transform.translation.y = data.pose.pose.position.y - 852.451235
+    tf_msg.transform.translation.z = data.pose.pose.position.z + 376.106038
+    tf_msg.transform.rotation.x = data.pose.pose.orientation.x
+    tf_msg.transform.rotation.y = data.pose.pose.orientation.y
+    tf_msg.transform.rotation.z = data.pose.pose.orientation.z
+    tf_msg.transform.rotation.w = data.pose.pose.orientation.w
+    br.sendTransform(tf_msg)
+
+    rate = rospy.Rate(10)
+    rate.sleep()
 
 
 def listener():
     rospy.init_node('dvl_converter')
-    rospy.Subscriber('/dvl/pose', PoseWithCovarianceStamped, convert)
+    rospy.Subscriber('/dvl/local_position', PoseWithCovarianceStamped, convert)
     rospy.spin()
 
 

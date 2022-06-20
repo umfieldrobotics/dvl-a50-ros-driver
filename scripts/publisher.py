@@ -193,7 +193,7 @@ def publisher():
             qy = rot.as_quat()[1]
             qz = rot.as_quat()[2]
             qw = rot.as_quat()[3]
-            
+
             x = data['x']
             y = data['y']
             z = data['z']
