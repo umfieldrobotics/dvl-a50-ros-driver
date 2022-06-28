@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.2)
 project(waterlinked_a50_ros_driver)
 
 # # Compile as C++11, supported in ROS Kinetic and newer
@@ -148,11 +148,7 @@ include_directories(
 
 # # Add cmake target dependencies of the executable
 # # same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-# # Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-# ${catkin_LIBRARIES}
+# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TAR3.2
 # )
 
 # ############
@@ -202,6 +198,6 @@ include_directories(
 
 # # Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-catkin_install_python(PROGRAMS scripts/publisher.py scripts/subscriber.py scripts/dvl2twist.py scripts/plot_dvl_vels.py scripts/converter
+catkin_install_python(PROGRAMS scripts/publisher.py scripts/subscriber.py scripts/dvl2twist.py scripts/plot_dvl_vels.py
   DESTINATION $(CATKIN_PACKAGE_BIN_DESTINATION)
 )
