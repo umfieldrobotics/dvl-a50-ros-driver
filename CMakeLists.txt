@@ -198,6 +198,6 @@ include_directories(
 
 # # Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-catkin_install_python(PROGRAMS scripts/publisher.py scripts/subscriber.py scripts/dvl2twist.py scripts/plot_dvl_vels.py
+catkin_install_python(PROGRAMS scripts/publisher.py scripts/subscriber.py scripts/dvl2twist.py scripts/plot_dvl_vels.py scripts/dead_reckoning_report.py
   DESTINATION $(CATKIN_PACKAGE_BIN_DESTINATION)
 )

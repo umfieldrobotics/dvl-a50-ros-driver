@@ -75,26 +75,26 @@ def publisher():
     rate = rospy.Rate(10)  # 10hz
     while not rospy.is_shutdown():
 
-        # Publish tf data
-        br = tf.TransformBroadcaster()
-        tf_msg = TransformStamped()
-        tf_msg.header.stamp = rospy.Time.now()
-        tf_msg.header.frame_id = "base_link"
-        tf_msg.child_frame_id = "dvl_link"
-        tf_msg.transform.translation.x = 0.042
-        tf_msg.transform.translation.y = 0.0
-        tf_msg.transform.translation.z = -0.21062
-        rpy = [np.pi, 0, -np.pi / 2]
-        rot = R.from_euler('xyz', rpy)
-        qx = rot.as_quat()[0]
-        qy = rot.as_quat()[1]
-        qz = rot.as_quat()[2]
-        qw = rot.as_quat()[3]
-        tf_msg.transform.rotation.x = qx
-        tf_msg.transform.rotation.y = qy
-        tf_msg.transform.rotation.z = qz
-        tf_msg.transform.rotation.w = qw
-        br.sendTransform(tf_msg)
+        # Publish tf data - UNNECESSARY, PUBLISH AS STATIC TRANSFORM FROM LAUNCH FILE
+        # br = tf.TransformBroadcaster()
+        # tf_msg = TransformStamped()
+        # tf_msg.header.stamp = rospy.Time.now()
+        # tf_msg.header.frame_id = "base_link"
+        # tf_msg.child_frame_id = "dvl_link"
+        # tf_msg.transform.translation.x = 0.042
+        # tf_msg.transform.translation.y = 0.0
+        # tf_msg.transform.translation.z = -0.21062
+        # rpy = [np.pi, 0, -np.pi / 2]
+        # rot = R.from_euler('xyz', rpy)
+        # qx = rot.as_quat()[0]
+        # qy = rot.as_quat()[1]
+        # qz = rot.as_quat()[2]
+        # qw = rot.as_quat()[3]
+        # tf_msg.transform.rotation.x = qx
+        # tf_msg.transform.rotation.y = qy
+        # tf_msg.transform.rotation.z = qz
+        # tf_msg.transform.rotation.w = qw
+        # br.sendTransform(tf_msg)
 
         raw_data = getData()
         if do_log_raw_data:
@@ -184,7 +184,7 @@ def publisher():
             pose_pub.publish(pose)
 
         elif data["type"] == "position_local":
-            roll = data["roll"]
+            roll = data["roll"] * np.pi / 180 # Degrees
             pitch = data["pitch"]
             yaw = data["yaw"]
             std = data["std"]

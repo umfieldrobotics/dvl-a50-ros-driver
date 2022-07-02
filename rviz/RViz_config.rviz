@@ -4,6 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /PoseWithCovariance1
         - /PoseWithCovariance1/Covariance1
         - /PoseWithCovariance1/Covariance1/Position1
       Splitter Ratio: 0.5
@@ -164,7 +165,7 @@ Visualization Manager:
       Shaft Length: 0
       Shaft Radius: 0
       Shape: Arrow
-      Topic: /dvl/local_position
+      Topic: /dvl/dead_reckoning
       Unreliable: false
       Value: true
     - Class: rviz/TF
@@ -174,9 +175,19 @@ Visualization Manager:
         All Enabled: true
         base_link:
           Value: true
+        base_link_frd:
+          Value: true
         camera_link:
           Value: true
         dvl_link:
+          Value: true
+        map:
+          Value: true
+        map_ned:
+          Value: true
+        odom:
+          Value: true
+        odom_ned:
           Value: true
       Marker Alpha: 1
       Marker Scale: 1
@@ -186,6 +197,8 @@ Visualization Manager:
       Show Names: true
       Tree:
         base_link:
+          base_link_frd:
+            {}
           camera_link:
             {}
           dvl_link:
@@ -232,7 +245,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 8.142498970031738
+      Distance: 11.620256423950195
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -240,17 +253,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.6973827481269836
-        Y: -0.5759094953536987
-        Z: -0.8230964541435242
+        X: -0.11014088988304138
+        Y: -0.0947309285402298
+        Z: -0.1516745388507843
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4303983449935913
+      Pitch: 0.42539849877357483
       Target Frame: <Fixed Frame>
-      Yaw: 5.578612327575684
+      Yaw: 4.8986077308654785
     Saved: ~
 Window Geometry:
   Displays:

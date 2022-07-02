@@ -127,14 +127,14 @@
     </buoyancy>
   </link>
 
-  <link name="dvl_link">
+  <!-- <link name="dvl_link">
 
   </link>
   <joint name="dvl_joint" type="fixed">
     <parent link="base_link"/>
     <child link="dvl_link"/>
     <origin xyz="0.042 -0.08904 -0.21062" rpy="3.141592653589793 0 -1.5707963267948966"/>
-  </joint>
+  </joint> -->
 
   <link name="camera_link">
     <!-- visual>
