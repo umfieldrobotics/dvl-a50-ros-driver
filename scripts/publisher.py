@@ -51,7 +51,8 @@ def getData():
                 "Lost connection with the DVL, reinitiating the connection: {}".format(err))
             connect()
             continue
-        raw_data = raw_data + rec
+        # raw_data = raw_data + rec
+        raw_data = raw_data + rec.decode('utf-8')
     raw_data = oldJson + raw_data
     oldJson = ""
     raw_data = raw_data.split('\n')
