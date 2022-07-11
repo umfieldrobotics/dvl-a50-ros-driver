@@ -10,7 +10,7 @@ from geometry_msgs.msg import (PoseWithCovarianceStamped, TransformStamped,
                                TwistStamped, TwistWithCovarianceStamped)
 from scipy.spatial.transform import Rotation as R
 from sensor_msgs.msg import Imu
-from std_msgs.msg import String
+from std_msgs.msg import String, Float64
 from waterlinked_a50_ros_driver.msg import DVL, DVLBeam
 
 
@@ -71,6 +71,14 @@ def publisher():
         'dvl/vel_coverage', PoseWithCovarianceStamped, queue_size=10)
     pub_quat = rospy.Publisher(
         'dvl/local_position', PoseWithCovarianceStamped, queue_size=10)
+    vx_pub = rospy.Publisher(
+        'plotter/vx', Float64, queue_size=10)
+    vy_pub = rospy.Publisher(
+        'plotter/vy', Float64, queue_size=10)
+    vz_pub = rospy.Publisher(
+        'plotter/vz', Float64, queue_size=10)
+    altitude_pub = rospy.Publisher(
+        'plotter/dvl_altitude', Float64, queue_size=10)
 
     rate = rospy.Rate(10)  # 10hz
     while not rospy.is_shutdown():
@@ -116,6 +124,7 @@ def publisher():
 
             theDVL.fom = data["fom"]
             theDVL.altitude = data["altitude"]
+            altitude_pub.publish(theDVL.altitude)
             theDVL.velocity_valid = data["velocity_valid"]
             theDVL.status = data["status"]
             theDVL.form = data["format"]
@@ -163,6 +172,9 @@ def publisher():
             tmp_cov[:9] = cov
             twist_cov.twist.covariance = tmp_cov
             twist_cov_pub.publish(twist_cov)
+            vx_pub.publish(data["vx"])
+            vy_pub.publish(data["vy"])
+            vz_pub.publish(data["vz"])
 
             # Populate the message for twist
             twist = TwistStamped()
