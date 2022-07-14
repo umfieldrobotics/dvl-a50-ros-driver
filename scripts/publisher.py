@@ -234,7 +234,8 @@ def publisher():
             tf_msg.transform.translation.x = x
             tf_msg.transform.translation.y = y
             tf_msg.transform.translation.z = z
-            rpy = [np.pi, 0, -np.pi / 2]
+            # rpy = [np.pi, 0, -np.pi / 2]
+            rpy = [roll, pitch, yaw]
             rot = R.from_euler('xyz', rpy)
             qx = rot.as_quat()[0]
             qy = rot.as_quat()[1]
@@ -246,7 +247,7 @@ def publisher():
             tf_msg.transform.rotation.w = qw
             br.sendTransform(tf_msg)
 
-        rate.sleep()
+        # rate.sleep()
 
 
 if __name__ == '__main__':
