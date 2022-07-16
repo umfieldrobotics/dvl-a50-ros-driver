@@ -9,8 +9,7 @@ import tf2_ros as tf
 from geometry_msgs.msg import (PoseWithCovarianceStamped, TransformStamped,
                                TwistStamped, TwistWithCovarianceStamped)
 from scipy.spatial.transform import Rotation as R
-from sensor_msgs.msg import Imu
-from std_msgs.msg import String
+from std_msgs.msg import Float64, String
 from waterlinked_a50_ros_driver.msg import DVL, DVLBeam
 
 
@@ -51,7 +50,8 @@ def getData():
                 "Lost connection with the DVL, reinitiating the connection: {}".format(err))
             connect()
             continue
-        raw_data = raw_data + rec
+        # raw_data = raw_data + rec
+        raw_data = raw_data + rec.decode('utf-8')
     raw_data = oldJson + raw_data
     oldJson = ""
     raw_data = raw_data.split('\n')
@@ -71,30 +71,38 @@ def publisher():
         'dvl/vel_coverage', PoseWithCovarianceStamped, queue_size=10)
     pub_quat = rospy.Publisher(
         'dvl/local_position', PoseWithCovarianceStamped, queue_size=10)
+    vx_pub = rospy.Publisher(
+        'plotter/vx', Float64, queue_size=10)
+    vy_pub = rospy.Publisher(
+        'plotter/vy', Float64, queue_size=10)
+    vz_pub = rospy.Publisher(
+        'plotter/vz', Float64, queue_size=10)
+    altitude_pub = rospy.Publisher(
+        'plotter/dvl_altitude', Float64, queue_size=10)
 
     rate = rospy.Rate(10)  # 10hz
     while not rospy.is_shutdown():
 
-        # Publish tf data
-        br = tf.TransformBroadcaster()
-        tf_msg = TransformStamped()
-        tf_msg.header.stamp = rospy.Time.now()
-        tf_msg.header.frame_id = "base_link"
-        tf_msg.child_frame_id = "dvl_link"
-        tf_msg.transform.translation.x = 0.042
-        tf_msg.transform.translation.y = 0.0
-        tf_msg.transform.translation.z = -0.21062
-        rpy = [np.pi, 0, -np.pi / 2]
-        rot = R.from_euler('xyz', rpy)
-        qx = rot.as_quat()[0]
-        qy = rot.as_quat()[1]
-        qz = rot.as_quat()[2]
-        qw = rot.as_quat()[3]
-        tf_msg.transform.rotation.x = qx
-        tf_msg.transform.rotation.y = qy
-        tf_msg.transform.rotation.z = qz
-        tf_msg.transform.rotation.w = qw
-        br.sendTransform(tf_msg)
+        # # Publish tf data
+        # br = tf.TransformBroadcaster()
+        # tf_msg = TransformStamped()
+        # tf_msg.header.stamp = rospy.Time.now()
+        # tf_msg.header.frame_id = "base_link"
+        # tf_msg.child_frame_id = "dvl_link"
+        # tf_msg.transform.translation.x = 0.042
+        # tf_msg.transform.translation.y = 0.0
+        # tf_msg.transform.translation.z = -0.21062
+        # rpy = [np.pi, 0, -np.pi / 2]
+        # rot = R.from_euler('xyz', rpy)
+        # qx = rot.as_quat()[0]
+        # qy = rot.as_quat()[1]
+        # qz = rot.as_quat()[2]
+        # qw = rot.as_quat()[3]
+        # tf_msg.transform.rotation.x = qx
+        # tf_msg.transform.rotation.y = qy
+        # tf_msg.transform.rotation.z = qz
+        # tf_msg.transform.rotation.w = qw
+        # br.sendTransform(tf_msg)
 
         raw_data = getData()
         if do_log_raw_data:
@@ -116,6 +124,7 @@ def publisher():
 
             theDVL.fom = data["fom"]
             theDVL.altitude = data["altitude"]
+            altitude_pub.publish(theDVL.altitude)
             theDVL.velocity_valid = data["velocity_valid"]
             theDVL.status = data["status"]
             theDVL.form = data["format"]
@@ -149,6 +158,10 @@ def publisher():
             beam3.valid = data["transducers"][3]["beam_valid"]
 
             theDVL.beams = [beam0, beam1, beam2, beam3]
+
+            vx_pub.publish(theDVL.velocity.x)
+            vy_pub.publish(theDVL.velocity.y)
+            vz_pub.publish(theDVL.velocity.z)
 
             pub.publish(theDVL)
 
@@ -184,23 +197,23 @@ def publisher():
             pose_pub.publish(pose)
 
         elif data["type"] == "position_local":
-            roll = data["roll"]
-            pitch = data["pitch"]
-            yaw = data["yaw"]
+            roll = data["roll"] * np.pi/180
+            pitch = data["pitch"] * np.pi/180
+            yaw = data["yaw"] * np.pi/180
             std = data["std"]
             rot = R.from_euler('xyz', [roll, pitch, yaw])
             qx = rot.as_quat()[0]
             qy = rot.as_quat()[1]
             qz = rot.as_quat()[2]
             qw = rot.as_quat()[3]
-            
+
             x = data['x']
             y = data['y']
             z = data['z']
 
             dvl_position = PoseWithCovarianceStamped()
             dvl_position.header.stamp = rospy.Time.now()
-            dvl_position.header.frame_id = "dvl_link"
+            dvl_position.header.frame_id = "world"
             dvl_position.pose.pose.position.x = x
             dvl_position.pose.pose.position.y = y
             dvl_position.pose.pose.position.z = z
@@ -213,7 +226,28 @@ def publisher():
 
             pub_quat.publish(dvl_position)
 
-        rate.sleep()
+            br = tf.TransformBroadcaster()
+            tf_msg = TransformStamped()
+            tf_msg.header.stamp = rospy.Time.now()
+            tf_msg.header.frame_id = "world"
+            tf_msg.child_frame_id = "dvl_link"
+            tf_msg.transform.translation.x = x
+            tf_msg.transform.translation.y = y
+            tf_msg.transform.translation.z = z
+            # rpy = [np.pi, 0, -np.pi / 2]
+            rpy = [roll, pitch, yaw]
+            rot = R.from_euler('xyz', rpy)
+            qx = rot.as_quat()[0]
+            qy = rot.as_quat()[1]
+            qz = rot.as_quat()[2]
+            qw = rot.as_quat()[3]
+            tf_msg.transform.rotation.x = qx
+            tf_msg.transform.rotation.y = qy
+            tf_msg.transform.rotation.z = qz
+            tf_msg.transform.rotation.w = qw
+            br.sendTransform(tf_msg)
+
+        # rate.sleep()
 
 
 if __name__ == '__main__':
