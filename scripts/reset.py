@@ -26,3 +26,14 @@ def write_reset():
     }
     res = s.send(json.dumps(reset_msg).encode('utf-8')) 
     print(res)
+
+
+if __name__ == '__main__':
+    global s, TCP_IP, TCP_PORT, do_log_raw_data
+    rospy.init_node('a50_pub', anonymous=False)
+    TCP_IP = rospy.get_param("~ip", "192.168.2.95")
+    TCP_PORT = rospy.get_param("~port", 16171)
+    do_log_raw_data = rospy.get_param("~do_log_raw_data", False)
+    connect()
+    write_reset()
+    s.close()
