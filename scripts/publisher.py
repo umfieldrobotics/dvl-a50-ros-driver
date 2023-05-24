@@ -186,22 +186,12 @@ def publisher():
             twist.twist.linear.z = data["vz"]
             twist_pub.publish(twist)
 
-            # Purpose of visualization with RViz, which doesn't have the twist covariance message, puslish it as a pose
-            pose = PoseWithCovarianceStamped()
-            pose.header.stamp = rospy.Time.now()
-            pose.header.frame_id = "dvl_link"
-            pose.pose.pose.position.x = data["vx"]
-            pose.pose.pose.position.y = data["vy"]
-            pose.pose.pose.position.z = data["vz"]
-            pose.pose.covariance = tmp_cov
-            pose_pub.publish(pose)
-
         elif data["type"] == "position_local":
             roll = data["roll"] * np.pi/180
             pitch = data["pitch"] * np.pi/180
             yaw = data["yaw"] * np.pi/180
             std = data["std"]
-            rot = R.from_euler('xyz', [roll, pitch, yaw])
+            rot = R.from_euler('xyz', [roll, pitch, yaw], degrees=False)
             qx = rot.as_quat()[0]
             qy = rot.as_quat()[1]
             qz = rot.as_quat()[2]
@@ -213,7 +203,7 @@ def publisher():
 
             dvl_position = PoseWithCovarianceStamped()
             dvl_position.header.stamp = rospy.Time.now()
-            dvl_position.header.frame_id = "world"
+            dvl_position.header.frame_id = "NED"
             dvl_position.pose.pose.position.x = x
             dvl_position.pose.pose.position.y = y
             dvl_position.pose.pose.position.z = z
@@ -229,8 +219,8 @@ def publisher():
             br = tf.TransformBroadcaster()
             tf_msg = TransformStamped()
             tf_msg.header.stamp = rospy.Time.now()
-            tf_msg.header.frame_id = "world"
-            tf_msg.child_frame_id = "dvl_link"
+            tf_msg.header.frame_id = "NED"
+            tf_msg.child_frame_id = "dvl_link_pos"
             tf_msg.transform.translation.x = x
             tf_msg.transform.translation.y = y
             tf_msg.transform.translation.z = z
